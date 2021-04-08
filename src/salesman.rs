@@ -2,7 +2,7 @@ use rand::{distributions::Uniform, prelude::*};
 
 #[derive(Debug)]
 // A city is simply two coordinates.
-pub struct City(usize, usize);
+pub struct City(pub usize, pub usize);
 
 impl Clone for City {
     fn clone(&self) -> Self {
@@ -13,7 +13,7 @@ impl Clone for City {
 #[derive(Debug)]
 // Itinerary is simply a sequence of cities and a cost of visiting them in this
 // order.
-pub struct Itinerary(Vec<City>, pub usize);
+pub struct Itinerary(pub Vec<City>, pub usize);
 
 impl Itinerary {
     // Generate a new random itinerary given the number of cities to visit. The
@@ -22,7 +22,7 @@ impl Itinerary {
         let mut rng = thread_rng();
         let mut cities: Vec<City> = Vec::new();
 
-        let uniform = Uniform::from(0..=(num_cities as f64).sqrt() as usize);
+        let uniform = Uniform::from(1..=(num_cities as f64).sqrt() as usize + 1);
         for _ in 0..num_cities {
             cities.push(City(uniform.sample(&mut rng), uniform.sample(&mut rng)));
         }
@@ -31,8 +31,8 @@ impl Itinerary {
         Itinerary(cities, cost)
     }
 
-    // Generate a new itinerary based on the current one. TODO: reverse a
-    // subsequence instead of swapping two cities.
+    // Generate a new itinerary by picking two indices at random and reversing
+    // the subsequence formed by these indices.
     pub fn generate_new(&self) -> Itinerary {
         let mut new_itinerary = self.clone();
         let (mut index_one, mut index_two) = Itinerary::generate_swap_indices(self.0.len());
@@ -89,7 +89,11 @@ impl Itinerary {
             let index_one: usize = rng.gen_range(0..len);
             let index_two: usize = rng.gen_range(0..len);
             if index_one != index_two {
-                return (index_one, index_two);
+                if index_one < index_two {
+                    return (index_one, index_two);
+                } else {
+                    return (index_two, index_one);
+                }
             }
         }
     }
