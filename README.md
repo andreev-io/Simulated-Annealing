@@ -18,15 +18,15 @@ Metropolis algorithm.
 ## Visualizations
 
 **Travel distance during computation for 500 cities:**
-![Manhattan Distance](https://github.com/andreev-io/Simulated-Annealing/blob/master/plots/scatterT0.09900000000010267N500S1000.png?raw=true)
+![Manhattan Distance](https://github.com/andreev-io/Simulated-Annealing/blob/master/plots/scatterT0.009900000009966804N500S1000.svg?raw=true)
 
 
 **Initial random path through 500 cities:**
-![Initial Path](https://github.com/andreev-io/Simulated-Annealing/blob/master/plots/pathT10N500S1000.png?raw=true)
+![Initial Path](https://github.com/andreev-io/Simulated-Annealing/blob/master/plots/pathT10N500S1000.svg?raw=true)
 
 
 **Optimized travel path through 500 cities:**
-![Optimized Path](https://github.com/andreev-io/Simulated-Annealing/blob/master/plots/pathT0.09900000000010267N500S1000.png?raw=true)
+![Optimized Path](https://github.com/andreev-io/Simulated-Annealing/blob/master/plots/pathT0.009900000009966804N500S1000.svg?raw=true)
 
 If interested, you can easily tweak the problem setup in `main.rs`. You can edit
 the number of cities, start and end temperature, temperature step, and sample

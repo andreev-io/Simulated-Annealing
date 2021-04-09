@@ -15,23 +15,23 @@ pub trait Simulatable<T: Clone> {
 
 // This function samples from a simulatable distribution n times. It returns a
 // vector of sampled values and the associated probabilities of obtaining them.
-pub fn sample<T: Clone>(s: &impl Simulatable<T>, n: usize) -> (Vec<T>, Vec<f64>) {
-    let (mut values, mut probabilities) = (Vec::new(), Vec::new());
+pub fn sample<T: Clone>(s: &impl Simulatable<T>, n: usize) -> Vec<(T, f64)> {
+    let mut results = Vec::new();
 
-    values.push(s.generate(None));
-    probabilities.push(s.pdf(&values[0]));
+    let seed_value = s.generate(None);
+    let seed_probability = s.pdf(&seed_value);
+    results.push((seed_value, seed_probability));
     for i in 1..n {
-        let proposed = s.generate(Some(&values[i - 1]));
-        if s.accept(Some(&values[i - 1]), &proposed) {
-            probabilities.push(s.pdf(&proposed));
-            values.push(proposed);
+        let proposed = s.generate(Some(&results[i - 1].0));
+        if s.accept(Some(&results[i - 1].0), &proposed) {
+            let p = s.pdf(&proposed);
+            results.push((proposed, p));
         } else {
-            values.push(values[i - 1].clone());
-            probabilities.push(probabilities[i - 1]);
+            results.push(results[i - 1].clone());
         }
     }
 
-    (values, probabilities)
+    results
 }
 
 pub struct Exponential {}

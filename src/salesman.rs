@@ -1,30 +1,30 @@
 use rand::{distributions::Uniform, prelude::*};
 
 #[derive(Debug)]
-// A city is simply two coordinates.
-pub struct City(pub usize, pub usize);
+// A city is its ID plus two coordinates.
+pub struct City(usize, pub f64, pub f64);
 
 impl Clone for City {
     fn clone(&self) -> Self {
-        return City(self.0, self.1);
+        return City(self.0, self.1, self.2);
     }
 }
 
 #[derive(Debug)]
-// Itinerary is simply a sequence of cities and a cost of visiting them in this
-// order.
-pub struct Itinerary(pub Vec<City>, pub usize);
+// Itinerary is simply a sequence of cities and the total cost of visiting them
+// in this order.
+pub struct Itinerary(pub Vec<City>, pub f64);
 
 impl Itinerary {
     // Generate a new random itinerary given the number of cities to visit. The
-    // side of the square in which the cities are position is sqrt(num_cities).
+    // side of the square in which the cities are positioned is N^1/2.
     pub fn new(num_cities: usize) -> Itinerary {
         let mut rng = thread_rng();
         let mut cities: Vec<City> = Vec::new();
 
-        let uniform = Uniform::from(1..=(num_cities as f64).sqrt() as usize + 1);
-        for _ in 0..num_cities {
-            cities.push(City(uniform.sample(&mut rng), uniform.sample(&mut rng)));
+        let uniform = Uniform::from(1.0..=(num_cities as f64).sqrt());
+        for i in 0..num_cities {
+            cities.push(City(i, uniform.sample(&mut rng), uniform.sample(&mut rng)));
         }
 
         let cost = Itinerary::cost(&cities);
@@ -32,7 +32,7 @@ impl Itinerary {
     }
 
     // Generate a new itinerary by picking two indices at random and reversing
-    // the subsequence formed by these indices.
+    // the subsequence bounded by these indices.
     pub fn generate_new(&self) -> Itinerary {
         let mut new_itinerary = self.clone();
         let (mut index_one, mut index_two) = Itinerary::generate_swap_indices(self.0.len());
@@ -51,9 +51,9 @@ impl Itinerary {
     }
 
     // Calculate the cost of an itinerary.
-    fn cost(cities: &Vec<City>) -> usize {
+    fn cost(cities: &Vec<City>) -> f64 {
         let len = cities.len();
-        let mut cost: usize = Itinerary::manhattan(&cities[0], &cities[len - 1]);
+        let mut cost: f64 = Itinerary::manhattan(&cities[0], &cities[len - 1]);
         for i in 1..len {
             cost += Itinerary::manhattan(&cities[i], &cities[i - 1]);
         }
@@ -65,18 +65,20 @@ impl Itinerary {
         self.1 as f64 / self.0.len() as f64
     }
 
-    // Calculate the Manhattan distance between two cities.
-    fn manhattan(start: &City, finish: &City) -> usize {
-        let mut cost: usize = if start.0 > finish.0 {
-            start.0 - finish.0
-        } else {
-            finish.0 - start.0
-        };
-
-        cost += if start.1 > finish.1 {
+    // Calculate the Manhattan distance between two cities. I have tried
+    // optimizing this function with a cache, but empirically lookups in a Rust
+    // HashMap take longer than a few extra FLOPS.
+    fn manhattan(start: &City, finish: &City) -> f64 {
+        let mut cost: f64 = if start.1 > finish.1 {
             start.1 - finish.1
         } else {
             finish.1 - start.1
+        };
+
+        cost += if start.2 > finish.2 {
+            start.2 - finish.2
+        } else {
+            finish.2 - start.2
         };
 
         cost

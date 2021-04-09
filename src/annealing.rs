@@ -39,11 +39,15 @@ impl Schedule {
 
         let mut results = Vec::new();
         while self.current_temperature > self.min_temperature {
-            let (values, _) = metropolis::sample(self, sample_size);
-            self.itinerary = values[values.len() - 1].clone();
+            let values = metropolis::sample(self, sample_size);
+            self.itinerary = values[values.len() - 1].0.clone();
             results.push((self.current_temperature, self.itinerary.1 as f64));
             self.current_temperature -= self.temperature_step;
-            println!("Current temperature: {}", self.current_temperature);
+            println!(
+                "Current temperature: {}. Current average travel leg: {}.",
+                self.current_temperature,
+                self.itinerary.average_step_length()
+            );
         }
 
         self.plot_scatter(results, sample_size);
@@ -56,13 +60,10 @@ impl Schedule {
         let v = ContinuousView::new()
             .add(s1)
             .x_label(format!(
-                "Temperature. Start: {}, step: {}, sample size: {}",
-                self.start_temperature, self.temperature_step, sample_size
+                "Temperature. Start temp: {}, temp step: {}, sample size: {}, cities: {}",
+                self.start_temperature, self.temperature_step, sample_size, self.num_cities
             ))
-            .y_label(format!(
-                "Manhattan travel distance. Cities: {}",
-                self.num_cities
-            ));
+            .y_label("Manhattan travel distance");
         Page::single(&v)
             .save(format!(
                 "plots/scatterT{}N{}S{}.svg",
@@ -76,9 +77,9 @@ impl Schedule {
             .itinerary
             .0
             .iter()
-            .map(|city| (city.0 as f64, city.1 as f64))
+            .map(|city| (city.1 as f64, city.2 as f64))
             .collect();
-        points.push((self.itinerary.0[0].0 as f64, self.itinerary.0[0].1 as f64));
+        points.push((self.itinerary.0[0].1 as f64, self.itinerary.0[0].2 as f64));
 
         let s1: Plot = Plot::new(points.clone()).point_style(PointStyle::new().colour("#35C788"));
         let s2: Plot = Plot::new(points).line_style(LineStyle::new().colour("#35C788"));
@@ -88,13 +89,10 @@ impl Schedule {
             .x_range(0.0, (self.num_cities as f64).sqrt() + 2.0)
             .y_range(0.0, (self.num_cities as f64).sqrt() + 2.0)
             .x_label(format!(
-                "City x coordinate. Cities: {}, temperature: {}",
+                "X coordinate. Cities: {}, temperature: {}",
                 self.num_cities, self.current_temperature
             ))
-            .y_label(format!(
-                "City y coordinate. Cities: {}, temperature: {}",
-                self.num_cities, self.current_temperature
-            ));
+            .y_label("Y coordinate");
         Page::single(&v)
             .save(format!(
                 "plots/pathT{}N{}S{}.svg",
