@@ -10,7 +10,7 @@ useful to approach the global optimum of the problem in question.
 This code sets up a traveling salesman problem and searches for the optimal
 solution using the simulated annealing approach. **The goal of this project is for
 me to better prepare for my *University of Illinois Artificial Intelligence and
-Data Analytics Group* presentation.**
+Data Analytics Group* presentation**: [https://www.youtube.com/watch?v=Fus4UYd9o3o](https://www.youtube.com/watch?v=Fus4UYd9o3o).
 
 Under the hood, the implementation models the Boltzmann distribution using the
 Metropolis algorithm.
